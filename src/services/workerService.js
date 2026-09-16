@@ -1,13 +1,13 @@
 const pubsub = require('../config/pubsub');
 const { getDatabase } = require('../config/database');
 const { transformLog } = require('../transformers/logTransformer');
+const ActivityLog = require('../models/ActivityLog');
 const dotenv = require('dotenv');
 dotenv.config();
 
 async function startWorker() {
   try {
-    const db = await getDatabase();
-    const collection = db.collection('activity_logs');
+    await getDatabase();
 
     // Apuntar a la suscripción local
     const subscription = pubsub.subscription(process.env.PUBSUB_SUBSCRIPTION);
@@ -26,9 +26,9 @@ async function startWorker() {
         // Transformar y limpiar la estructura usando el transformer
         const cleanLog = transformLog(rawData, message);
 
-        // Guardar en MongoDB
-        await collection.insertOne(cleanLog);
-        console.log('💾 Log guardado con éxito en MongoDB.');
+        // Guardar en MongoDB con Mongoose
+        await ActivityLog.create(cleanLog);
+        console.log('💾 Log guardado con éxito en MongoDB (Mongoose).');
 
         // Confirmar a GCP que el log se procesó correctamente (ACK)
         message.ack();

@@ -1,17 +1,19 @@
-const { MongoClient } = require('mongodb');
+const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 dotenv.config();
 
-// Tu URI local de MongoDB
 const uri = process.env.MONGO_URI;
-const mongoClient = new MongoClient(uri);
+const dbName = process.env.DB_NAME;
 
 async function getDatabase() {
-  await mongoClient.connect();
-  return mongoClient.db(process.env.DB_NAME);
+  // Mongoose maneja internamente el pool de conexiones
+  await mongoose.connect(uri, {
+    dbName: dbName
+  });
+  console.log('✅ Conectado a MongoDB vía Mongoose');
+  return mongoose.connection;
 }
 
 module.exports = {
-  mongoClient,
   getDatabase
 };
