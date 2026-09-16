@@ -22,10 +22,27 @@ const activityLogSchema = new mongoose.Schema({
     log_id_gcp: { type: String, unique: true, sparse: true }
   }
 }, {
-  collection: 'activity_logs',
-  strict: false // Flexible para permitir campos dinámicos futuros
+  // La colección se define dinámicamente al crear el modelo
+  strict: false
 });
 
-const ActivityLog = mongoose.model('ActivityLog', activityLogSchema);
+// Cache para almacenar los modelos dinámicos y no recrearlos
+const models = {};
 
-module.exports = ActivityLog;
+function getLogModel(moduleName) {
+  // Convertir "Students" a "students_logs", "Parents" a "parents_logs"
+  const safeName = (moduleName || 'unknown').toLowerCase();
+  const collectionName = `${safeName}_logs`;
+  const modelName = `Log_${safeName}`;
+
+  // Si no existe el modelo en caché, lo creamos
+  if (!models[modelName]) {
+    models[modelName] = mongoose.model(modelName, activityLogSchema, collectionName);
+  }
+  
+  return models[modelName];
+}
+
+module.exports = {
+  getLogModel
+};

@@ -1,7 +1,7 @@
 const pubsub = require('../config/pubsub');
 const { getDatabase } = require('../config/database');
 const { transformLog } = require('../transformers/logTransformer');
-const ActivityLog = require('../models/ActivityLog');
+const { getLogModel } = require('../models/ActivityLog');
 const dotenv = require('dotenv');
 dotenv.config();
 
@@ -26,9 +26,12 @@ async function startWorker() {
         // Transformar y limpiar la estructura usando el transformer
         const cleanLog = transformLog(rawData, message);
 
-        // Guardar en MongoDB con Mongoose
-        await ActivityLog.create(cleanLog);
-        console.log('💾 Log guardado con éxito en MongoDB (Mongoose).');
+        // Obtener el modelo dinámico basado en el módulo (ej. "Students")
+        const DynamicLogModel = getLogModel(cleanLog.module);
+
+        // Guardar en MongoDB con Mongoose en su colección correspondiente
+        await DynamicLogModel.create(cleanLog);
+        console.log(`💾 Log guardado con éxito en la colección: ${DynamicLogModel.collection.name}`);
 
         // Confirmar a GCP que el log se procesó correctamente (ACK)
         message.ack();
