@@ -1,0 +1,10 @@
+{
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@google-cloud/pubsub": "^6.0.1",
+    "dotenv": "^17.4.2",
+    "mongodb": "^7.6.0"
+  }
+}
