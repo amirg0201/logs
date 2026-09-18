@@ -32,7 +32,7 @@ const models = {};
 function getLogModel(moduleName) {
   // Convertir "Students" a "students_logs", "Parents" a "parents_logs"
   const safeName = (moduleName || 'unknown').toLowerCase();
-  const collectionName = `${safeName}_logs`;
+  const collectionName = safeName; // ej. "students", "parents", "staff"
   const modelName = `Log_${safeName}`;
 
   // Si no existe el modelo en caché, lo creamos
